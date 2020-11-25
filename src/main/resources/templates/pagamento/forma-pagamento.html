@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="pt" 
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	xmlns:data="http://www.thymeleaf.org/extras/data-attribute"
+	layout:decorate="~{layout/layout-padrao}"
+	xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+	
+	<head>
+		<link rel="stylesheet" type="text/css" th:href="@{/layout/stylesheets/pesquisa-itens.css}"/>
+		<link rel="stylesheet" type="text/css" th:href="@{/layout/stylesheets/easy-autocomplete.min.css}"/>
+	</head>
+	<body>
+		<section layout:fragment="conteudo">
+			
+			<div class="page-header">
+				
+				<div class="container-fluid">
+					<div class="row">
+						<div class="col-xs-10">
+							<h1>
+								Forma de Pagamento
+							</h1>
+						</div>
+					</div>
+				</div>
+				
+			</div>
+			
+			<div class="container-fluid">
+			
+				<form method="post" class="form-vertical  js-form-loading" th:object="${pagamento}" th:action="@{/pagamentos/pagamento}">
+
+					<div class="alert  alert-danger  alert-dismissible" role="alert" th:if="${#fields.hasAnyErrors()}">
+						<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+						<th:block th:each="error : ${#fields.detailedErrors()}">
+							<div>
+								<i class="fa  fa-exclamation-circle"></i>
+								<span th:text="${error.message}"></span>
+							</div>
+						</th:block>
+					</div>
+
+					<div class="alert  alert-danger" th:if="${!#strings.isEmpty(error)}">
+						<span th:text="${error}"></span>
+					</div>
+
+					<div class="alert  alert-info" th:if="${!#strings.isEmpty(info)}">
+						<span th:text="${info}"></span>
+					</div>
+					
+					<div class="alert  alert-success" th:if="${!#strings.isEmpty(mensagem)}">
+						<span th:text="${mensagem}"></span>
+					</div>
+
+					<input type="hidden" th:field="*{codigo}" />
+
+					<input type="hidden" th:field="*{venda}" />
+
+					<input type="hidden" th:field="*{desconto}" />
+
+					<input type="hidden" th:field="*{subTotal}" />
+
+					<div class="row">
+						<div class="col-sm-2">
+						</div>
+					</div>
+					
+					<div class="row">
+						<div class="col-sm-3">
+							<div class="form-group" th:classappend="${#fields.hasErrors('cpf')} ? has-error">
+								<label for="cpf">Cpf</label>
+								<input id="cpf" type="text" th:field="*{cpf}" class="form-control" />
+							</div>
+						</div>
+						
+						<div class="col-sm-3" sec:authorize="hasAnyRole('ROLE_ADMINISTRADOR','ROLE_OPERADOR')">
+							<div>
+								<a class="btn  btn-primary  btn-venda" style="cursor:pointer"
+									data-toggle="modal" data-target="#cadastrarClienteModal"
+									data:codigo="${pagamento?.codigo}" 
+									data:url-cadastrar="@{/pagamentos/cliente}">
+									<i class="fa  fa-plus-circle"></i> <span class="hidden-xs  hidden-sm">Cliente</span>
+								</a>
+							</div>
+						</div>
+					</div>
+
+					<div class="row">
+						<div class="col-sm-3">
+							<div class="form-group">
+								<label for="totalApagar" th:if="${pagamento.ok}">Total Pago</label>
+								<label for="totalApagar" th:if="${!pagamento.ok}">Total A Pagar</label>
+								<input id="totalApagar" type="text" th:field="*{totalApagar}" class="form-control js-moeda js-total" placeholder="R$" readonly="readonly" />
+							</div>
+						</div>
+					</div>
+	
+					<hr>
+	
+					<div class="row">
+						<div class="col-sm-3">
+							<div class="form-group" th:classappend="${#fields.hasErrors('dinheiro')} ? has-error">
+								<label for="dinheiro">Dinheiro</label>
+								<input id="dinheiro" type="text" th:field="*{dinheiro}" class="form-control js-moeda js-dinheiro js-somar-valor" placeholder="R$" />
+							</div>
+						</div>
+
+						<div class="col-sm-3">
+							<div class="form-group" th:classappend="${#fields.hasErrors('debito')} ? has-error">
+								<label for="debito">Débito</label>
+								<input id="debito" type="text" th:field="*{debito}" class="form-control js-moeda js-somar-valor" placeholder="R$" />
+							</div>
+						</div>
+					</div>
+
+					<div class="row">
+						<div class="col-sm-3">
+							<div class="form-group" th:classappend="${#fields.hasErrors('credito')} ? has-error">
+								<label for="credito">Crédito</label>
+								<input id="credito" type="text" th:field="*{credito}" class="form-control js-moeda js-somar-valor" placeholder="R$" />
+							</div>
+						</div>
+
+						<div class="col-sm-3">
+							<div class="form-group" th:classappend="${#fields.hasErrors('outros')} ? has-error">
+								<label for="outros">Vale</label>
+								<input id="outros" type="text" th:field="*{outros}" class="form-control js-moeda js-somar-valor" placeholder="R$" />
+							</div>
+						</div>
+					</div>
+
+					<hr>
+
+					<div class="row">
+						<div class="col-sm-3">
+							<div class="form-group">
+								<label for="totalPago" th:if="${!pagamento.ok}">A Pagar</label>
+								<label for="totalPago" th:if="${pagamento.ok}">Pago</label>
+								<input id="totalPago" type="text" name="totalPago" class="form-control js-moeda js-a-pagar" placeholder="R$" readonly="readonly" />
+							</div>
+						</div>
+
+						<div class="col-sm-3">
+							<div class="form-group" th:classappend="${#fields.hasErrors('troco')} ? has-error">
+								<label for="troco">Troco</label>
+								<input id="troco" type="text" th:field="*{troco}" class="form-control js-moeda js-troco" placeholder="R$" readonly="readonly" />
+							</div>
+						</div>
+					</div>
+
+					<div class="row">
+						<div class="col-sm-3">
+							<div class="form-group">
+							</div>
+						</div>
+						
+						<div class="col-sm-3">
+							<div class="form-group">
+								<a th:href="@{/vendas/vendedor/{codigo}(codigo=${pagamento.venda.vendedor.codigo})}" class="btn  btn-default  btn-venda">Retornar</a>
+								<button class="btn  btn-primary  btn-venda" type="submit" th:if="${!pagamento.ok}">Pagar</button>
+								<a th:href="@{/relatorios/compras/{codigo}(codigo=${pagamento?.codigo})}" class="btn  btn-danger  btn-venda" th:if="${pagamento.ok}">Cupom Não Fiscal</a>
+							</div>
+						</div>
+					</div>
+
+					<hr>
+
+				</form>
+				
+			</div>
+
+			<div class="modal  fade" id="cadastrarClienteModal" tabindex="-1" role="dialog">
+			  <div class="modal-dialog" role="document">
+			    <div class="modal-content">
+		  			<form th:action="@{/pagamentos}" method="POST">
+
+    					<input id="pagamento" name="codigoPagamento" type="hidden" value="" />
+			    
+				      	<div class="modal-header">
+				        	<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				        		<span aria-hidden="true">&times;</span>
+				        	</button>
+				        	<h4 class="modal-title" id="saveClienteModal">Cadastrar Cliente</h4>
+				      	</div>
+				      	
+				      	<div class="modal-body">
+				        	<span>Cadastrar cliente?</span>
+				        	<hr>
+							<div class="form-group">
+								<label for="nome">Cliente</label>
+								<input id="pesquisa_cliente" name="nome" type="text" class="form-control" value="" required="required" />
+							</div>
+							<div class="form-group">
+								<label for="cpf">Cpf</label>
+					        	<input id="cpf_modal" name="cpf" type="text" class="form-control" value="" required="required" />
+				        	</div>
+							<div class="form-group">
+								<label for="email">Email</label>
+					        	<input id="email_modal" name="email" type="text" class="form-control" value="" />
+				        	</div>
+				      	</div>
+				      	
+				      	<div class="modal-footer">
+				        	<button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+	       					<button type="submit" class="btn  btn-primary">Salvar</button>
+				      	</div>
+		     		</form>
+			    </div>
+			  </div>
+			</div>
+
+		</section>
+
+</html>

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	xmlns:th="http://www.thymeleaf.org"
+	layout:decorate="~{layout/layout-simples}">
+
+	<th:block layout:fragment="conteudo">
+		<form th:action="@{/login}" method="POST">
+			<div class="aw-simple-panel">
+				<img alt="Cara Core" th:src="@{/layout/images/logo-gray.png}"/>
+				
+				<div class="aw-simple-panel__message">
+					Por favor, faça o login.
+				</div>
+				
+				<div class="aw-simple-panel__message  is-error" th:if="${#bools.isTrue(param.error)}">
+					O operador e/ou senha não conferem
+				</div>
+				
+				<div class="aw-simple-panel__box">
+					<div class="form-group  has-feedback">
+						<input type="text" class="form-control  input-lg" placeholder="Seu operador" autofocus="autofocus" name="username" required="required" />
+						<span class="glyphicon  glyphicon-envelope  form-control-feedback"></span>
+					</div>
+					
+					<div class="form-group  has-feedback">
+						<input type="password" class="form-control  input-lg" placeholder="Sua senha" name="password" required="required" />
+						<span class="glyphicon  glyphicon-lock  form-control-feedback" ></span>
+					</div>
+
+					<div class="form-group">
+						<button type="submit" class="btn  btn-primary  btn-lg  aw-btn-full-width">Entrar</button>
+					</div>
+			
+					<div class="form-group clearfix">
+						<div class="checkbox  pull-left  aw-checkbox-no-margin">
+							<input type="checkbox" id="lembrar"/>
+							<label for="lembrar">Lembre de mim</label>
+						</div>
+						
+						<div class="pull-right">
+							<a th:href="@{/esqueceu-a-senha}">Esqueceu a senha?</a>
+						</div>
+					</div>
+				</div>
+				
+			</div>
+		</form>
+	</th:block>
+
+</html>

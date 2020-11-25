@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="pt" 
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	xmlns:data="http://www.thymeleaf.org/extras/data-attribute"
+	layout:decorate="~{layout/layout-padrao}"
+	xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+	
+	<head>
+		<link rel="stylesheet" type="text/css" th:href="@{/layout/stylesheets/pesquisa-itens.css}"/>
+	</head>
+	<body>
+		<section layout:fragment="conteudo">
+			<div class="page-header">
+				<div class="container-fluid">
+					<div class="row">
+						<div class="col-xs-10">
+							<h1>
+								Cadastro de Venda
+							</h1>
+						</div>
+					</div>
+				</div>
+			</div>
+			
+			<div class="container-fluid">
+				<form method="post" class="form-vertical  js-form-loading" th:object="${produtoFilter}" th:action="@{/vendas/produto}">
+				
+					<input type="hidden" th:field="*{codigoVenda}" />
+					
+					<input type="hidden" th:field="*{codigoVendedor}" />
+					
+					<div class="row">
+						<div class="col-sm-2">
+							<div class="form-group">
+								<label for="codigo">Cód. Produto</label>
+								<input id="codigo" type="text" th:field="*{codigo}" class="form-control" placeholder="Código do produto" onkeypress='return event.charCode >= 48 && event.charCode <= 57' />
+							</div>
+						</div>
+						<div class="col-sm-2">
+							<div class="form-group">
+								<label for="codigo">QTD</label>
+								<input id="codigo" type="text" th:field="*{quantidade}" class="form-control" placeholder="Quantidade" onkeypress='return event.charCode >= 48 && event.charCode <= 57' />
+							</div>
+						</div>
+						<div class="col-sm-2">
+							<div class="form-group">
+								<button class="btn  btn-primary btn-venda" type="submit">Buscar</button>
+							</div>
+						</div>
+						<div class="col-sm-2">
+							<div class="form-group">
+								<label for="codigoBarra">Cód. Barra</label>
+								<input id="codigoBarra" type="text" th:field="*{codigoBarra}" class="form-control" placeholder="Código de barra" />
+							</div>
+						</div>
+						<div class="col-sm-4">
+							<div class="form-group">
+								<label for="descricao">Descrição</label>
+								<input id="descricao" type="text" th:field="*{descricao}" class="form-control" readonly="readonly" />
+							</div>
+						</div>
+					</div>
+
+					<hr>
+					
+				</form>
+				
+				<form method="post" class="form-horizontal  js-form-loading" th:object="${venda}" th:action="@{/pagamentos/forma-pagamento}">
+					<div class="alert  alert-danger  alert-dismissible" role="alert" th:if="${#fields.hasAnyErrors()}">
+						<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+						<th:block th:each="error : ${#fields.detailedErrors()}">
+							<div>
+								<i class="fa  fa-exclamation-circle"></i>
+								<span th:text="${error.message}"></span>
+							</div>
+						</th:block>
+					</div>
+					<div class="alert  alert-success" th:if="${!#strings.isEmpty(mensagem)}">
+						<span th:text="${mensagem}"></span>
+					</div>
+					<div class="alert  alert-danger" th:if="${!#strings.isEmpty(error)}">
+						<span th:text="${error}"></span>
+					</div>
+
+					<input type="hidden" th:field="*{codigo}" />
+
+					<div class="table-responsive">
+						<table id="tabela-produtos" class="table  table-striped  table-bordered  table-hover  table-condensed  js-sticky-table">
+							<thead class="aw-table-header-solid">
+								<tr>
+									<th>Cód. Produto</th>
+									<th class="text-left">Cód. Barra</th>
+									<th class="text-left">Descrição do produto</th>
+									<th class="text-right">QTD</th>
+									<th class="text-right">Preço unitário</th>
+									<th class="text-right">Desconto</th>
+									<th class="text-right">Preço parcial</th>
+									<th sec:authorize="hasAnyRole('ROLE_ADMINISTRADOR','ROLE_OPERADOR')"></th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr th:each="item : ${venda?.itens}">
+									<td th:text="${item?.produto?.codigo}" class="text-center">1000</td>
+									<td th:text="${item?.produto?.codigoBarra}" class="text-left">0110</td>
+									<td class="text-left">
+										<a th:href="@{/itens/{codigo}(codigo=${item.codigo})}" th:text="${item?.produto?.descricao}" sec:authorize="hasAnyRole('ROLE_ADMINISTRADOR','ROLE_OPERADOR')"></a>
+										<span th:text="${item?.produto?.descricao}" sec:authorize="not hasAnyRole('ROLE_ADMINISTRADOR','ROLE_OPERADOR')"></span>
+									</td>
+									<td th:text="${item.quantidade}" class="text-right"></td>
+									<td th:text="|R$${{item.precoUnitario}}|" class="text-right">R$ 1.999,99</td>
+									<td th:text="|${{item.desconto}}%|" class="text-right"></td>
+									<td th:text="|R$${{item.subTotal}}|" class="text-right">R$ 1.999,99</td>
+									<td class="text-center" sec:authorize="hasAnyRole('ROLE_ADMINISTRADOR','ROLE_OPERADOR')">
+										<a class="btn  btn-link btn-xs" style="cursor:pointer"
+											title="Atualizar item" rel="tooltip"
+											data-toggle="modal" data-target="#atualizaItemVendaModal"
+											data:nome="${item?.produto?.descricao}" 
+											data:desconto="${item.desconto}" 
+											data:quantidade="${item.quantidade}" 
+											data:url-atualizar="@{/itens/{codigo}(codigo=${item.codigo})}">
+											<span class="glyphicon glyphicon-check"></span>
+										</a>
+										<a class="fa fa-trash" style="cursor:pointer"
+											title="Excluir item" rel="tooltip"
+											data-toggle="modal" data-target="#confirmaExclusaoModal"
+											data:nome="${item?.produto?.descricao}" 
+											data:url-apagar="@{/itens/{codigo}(codigo=${item.codigo})}">
+										</a>
+									</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+					
+					<div class="col-sm-4">
+						<div class="form-group">
+							<label for="nome">Sub Total</label>
+							<input id="nome" type="text" class="form-control js-calcular-sub-total" th:field="*{subTotal}" readonly="readonly" />
+						</div>
+					</div>
+					<div class="col-sm-4">
+						<div class="form-group">
+							<label for="descontoTotal">Desconto Total</label>
+							<input id="descontoTotal" type="text" class="form-control js-moeda js-calcular-desconto" placeholder="%" th:field="*{descontoTotal}"/>
+						</div>
+					</div>
+					<div class="col-sm-4">
+						<div class="form-group">
+							<label for="total">Total</label>
+							<input id="total" type="text" class="form-control js-calcular-total" th:field="*{total}" readonly="readonly" />
+						</div>
+					</div>
+
+					<div class="col-sm-4">
+						<div class="form-group">
+							<label for="data">Data/Hora</label>
+							<input id="data" type="text" class="form-control" th:field="*{data}" readonly="readonly"/>
+						</div>
+					</div>
+					<div class="col-sm-4">
+						<div class="form-group">
+							<label for="vendedor">Vendedor</label>
+							<select id="vendedor" class="form-control" th:field="*{vendedor}">
+								<option value="">Selecione o vendedor</option>
+								<option th:each="vendedor : ${vendedores}" th:value="${vendedor.codigo}" th:text="${vendedor.nome}"></option>
+							</select>
+						</div>
+					</div>
+					<div class="col-sm-4 btn-venda">
+						<button class="btn  btn-primary" type="submit">Receber pagamento</button>
+					</div>
+				</form>
+			</div>
+
+			<div class="modal  fade" id="atualizaItemVendaModal" tabindex="-2" role="dialog">
+			  <div class="modal-dialog" role="document">
+			    <div class="modal-content">
+		  			<form th:action="@{/itens}" method="POST">
+ 	  					<input type="hidden" name="_method" value="PUT"/>
+			    
+				      	<div class="modal-header">
+				        	<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				        		<span aria-hidden="true">&times;</span>
+				        	</button>
+				        	<h4 class="modal-title" id="updModalDesc">Atualizar Item de Venda</h4>
+				      	</div>
+				      	
+				      	<div class="modal-body">
+				        	<span>Atualizar?</span>
+				        	<hr>
+							<div class="form-group">
+								<label for="quantidade">Quantidade</label>
+					        	<input id="quantidade" type="text" class="form-control" name="quantidade" value="" />
+				        	</div>
+							<div class="form-group">
+								<label for="desconto">Desconto</label>
+					        	<input id="desconto" type="text" class="form-control js-moeda" placeholder="%" name="desconto" value="" />
+				        	</div>
+							<div class="form-group">
+								<div>
+									<label for="dinheiro">Dinheiro</label>
+									<input id="dinheiro" class="checkbox" type="checkbox" name="dinheiro" value="dinheiro" />
+								</div>
+				        	</div>
+				      	</div>
+				      	
+				      	<div class="modal-footer">
+				        	<button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+	       					<button type="submit" class="btn  btn-primary">Atualizar</button>
+				      	</div>
+		     		</form>
+			    </div>
+			  </div>
+			</div>
+			
+			<div class="modal  fade" id="confirmaExclusaoModal" tabindex="-1" role="dialog">
+				<div class="modal-dialog" role="document">
+			  		<div class="modal-content">
+			  			<form th:action="@{/itens}" method="POST">
+			  				<input type="hidden" name="_method" value="DELETE"/>
+			     			
+			     			<div class="modal-header">
+				       			<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				       				<span aria-hidden="true">&times;</span>
+				       			</button>
+				       			<h4 class="modal-title" id="delModal">Excluir item</h4>
+			     			</div>
+			     			
+			     			<div class="modal-body">
+			       				<span>Tem certeza?</span>
+			     			</div>
+			     			
+			     			<div class="modal-footer">
+			       				<button type="button" class="btn  btn-default" data-dismiss="modal">Cancelar</button>
+			       				<button type="submit" class="btn  btn-primary">Excluir</button>
+			     			</div>
+			     		</form>
+			  		</div>
+				</div>
+			</div>	
+		
+		</section>
+
+</html>

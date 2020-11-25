@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="pt" 
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layout/layout-padrao}"
+	xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+	
+<body>
+<section layout:fragment="conteudo">
+
+	<div class="page-header">
+		<div class="container-fluid">
+			<h1>
+				Cadastro de Vendedor
+			</h1>
+		</div>
+	</div>
+
+	<div class="container-fluid">
+	
+		<form method="post" class="form-vertical  js-form-loading" th:object="${vendedor}" th:action="@{/vendedores/novo}">
+	
+			<div class="alert  alert-danger  alert-dismissible" role="alert" th:if="${#fields.hasAnyErrors()}">
+				<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<th:block th:each="error : ${#fields.detailedErrors()}">
+					<div>
+						<i class="fa  fa-exclamation-circle"></i>
+						<span th:text="${error.message}"></span>
+					</div>
+				</th:block>
+			</div>
+			
+			<div class="alert  alert-success" th:if="${!#strings.isEmpty(mensagem)}">
+				<span th:text="${mensagem}"></span>
+			</div>
+	
+			<input type="hidden" th:field="*{codigo}" />
+	
+			<div class="form-group">
+				<label for="nome">Nome</label>
+				<input id="nome" type="text" class="form-control" th:field="*{nome}"/>
+			</div>
+	
+			<div class="row">
+				<div class="col-sm-4">
+					<div class="form-group" th:classappend="${#fields.hasErrors('operador')} ? has-error">
+						<label for="operador">Operador</label>
+						<select id="operador" class="form-control" th:field="*{operador}">
+							<option value="">Selecione o operador</option>
+							<option th:each="operador : ${operadores}" th:value="${operador.codigo}" th:text="${operador.nome}"></option>
+						</select>
+					</div>
+				</div>
+
+				<div class="col-sm-4">
+					<div class="form-group" th:classappend="${#fields.hasErrors('tipo')} ? has-error">
+						<label for="tipo">Tipo</label>
+						<select id="tipo" class="form-control" th:field="*{tipo}">
+							<option value="">Selecione o tipo</option>
+							<option th:each="tipo : ${tipos}" th:value="${tipo}" th:text="#{|tipoVendedor.${tipo}|}"></option>
+						</select>
+					</div>
+				</div>
+				
+				<div class="col-sm-4">
+					<div class="form-group">
+						<label for="loja">Loja</label>
+						<select id="loja" class="form-control" th:field="*{loja}">
+							<option value="">Selecione a loja</option>
+							<option th:each="loja : ${lojas}" th:value="${loja.codigo}" th:text="${loja.nome}"></option>
+						</select>
+					</div>
+				</div>
+			</div>
+			
+			<div class="form-group">
+				<button class="btn  btn-primary" type="submit">Salvar</button>
+				<a th:href="@{/vendedores}" class="btn  btn-default">Cancelar</a>
+			</div>
+	
+		</form>
+	
+	</div>
+
+</section>
+</body>
+</html>

@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	xmlns:th="http://www.thymeleaf.org"
+	layout:decorate="~{layout/layout-simples}">
+
+	<th:block layout:fragment="conteudo">
+		
+		<form method="post" th:object="${mail}" th:action="@{/recupera-senha}" >
+
+			<div class="aw-simple-panel">
+				
+				<img alt="Cara Core" th:src="@{/layout/images/logo-gray.png}"/>
+				
+				<div class="aw-simple-panel__message">
+					Informe o seu login de operador e e-mail abaixo para receber sua senha via na sua caixa postal eletr&ocirc;nica.
+				</div>
+
+				<div class="alert  alert-danger  alert-dismissible" role="alert" th:if="${#fields.hasAnyErrors()}">
+					<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					<th:block th:each="error : ${#fields.detailedErrors()}">
+						<div>
+							<i class="fa  fa-exclamation-circle"></i>
+							<span th:text="${error.message}"></span>
+						</div>
+					</th:block>
+				</div>
+				
+				<div class="alert  alert-success" th:if="${!#strings.isEmpty(mensagem)}">
+					<span th:text="${mensagem}"></span>
+				</div>
+				
+				<div class="aw-simple-panel__box">
+					<div class="form-group  has-feedback" th:classappend="${#fields.hasErrors('login')} ? has-error">
+						<input type="text" class="form-control  input-lg" placeholder="Seu operador"  autofocus="autofocus" th:field="*{login}" required="required" />
+						<span class="glyphicon  glyphicon-envelope  form-control-feedback"></span>
+					</div>
+
+					<div class="form-group  has-feedback" th:classappend="${#fields.hasErrors('to')} ? has-error">
+						<input type="text" class="form-control  input-lg" placeholder="Seu e-mail" th:field="*{to}" required="required" />
+						<span class="glyphicon  glyphicon-envelope  form-control-feedback" aria-hidden="true"></span>
+					</div>
+					
+					<div class="form-group">
+						<button type="submit"  class="btn  btn-primary  btn-lg  aw-btn-full-width">Recuperar senha</button>
+					</div>
+
+					<div class="form-group">
+						<a th:href="@{/login}" class="btn  btn-default  btn-lg  aw-btn-full-width">Retornar</a>
+					</div>
+				</div>
+				
+			</div>
+
+		</form>
+	</th:block>
+
+</html>
