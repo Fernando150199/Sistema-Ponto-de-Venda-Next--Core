@@ -31,15 +31,7 @@ Administrator Profile:
 User: master
 Password: 123456
 
-Operator Profile:
 
-User: maria
-Password: 1234
-
-Guest profile:
-
-User: joao
-Password: 1234
 
 
 O banco de dados da aplicação no site é o Postgree SQL.
@@ -48,7 +40,6 @@ Também podemos configurar o banco de dados HSQLDB desktop, o qual é compatíve
 
 Este banco de dados segue o padrão (SGDB) de bancos relacionais.
 
-Veja no Youtube: https://youtu.be/MSPIJADHYYA
 
 
 
